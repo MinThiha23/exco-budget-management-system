@@ -1,0 +1,6 @@
+# Minimal, production-safe API protections
+
+# Block direct access to backend config
+<Files "config.php">
+  Require all denied
+</Files>

@@ -1,0 +1,277 @@
+<?php
+require_once 'config.php';
+
+// Enhanced PDF generation with Kedah logo and formal table format
+function generateFormalPDF($programs, $reportType, $startDate, $endDate) {
+    // Create PDF structure with embedded logo
+    $pdf = "%PDF-1.4\n";
+    
+    // Add font dictionary
+    $pdf .= "1 0 obj\n";
+    $pdf .= "<<\n";
+    $pdf .= "/Type /Font\n";
+    $pdf .= "/Subtype /Type1\n";
+    $pdf .= "/BaseFont /Helvetica\n";
+    $pdf .= ">>\n";
+    $pdf .= "endobj\n";
+    
+    $pdf .= "2 0 obj\n";
+    $pdf .= "<<\n";
+    $pdf .= "/Type /Font\n";
+    $pdf .= "/Subtype /Type1\n";
+    $pdf .= "/BaseFont /Helvetica-Bold\n";
+    $pdf .= ">>\n";
+    $pdf .= "endobj\n";
+    
+    // Catalog
+    $pdf .= "3 0 obj\n";
+    $pdf .= "<<\n";
+    $pdf .= "/Type /Catalog\n";
+    $pdf .= "/Pages 4 0 R\n";
+    $pdf .= ">>\n";
+    $pdf .= "endobj\n";
+    
+    // Pages
+    $pdf .= "4 0 obj\n";
+    $pdf .= "<<\n";
+    $pdf .= "/Type /Pages\n";
+    $pdf .= "/Kids [5 0 R]\n";
+    $pdf .= "/Count 1\n";
+    $pdf .= ">>\n";
+    $pdf .= "endobj\n";
+    
+    // Create page content with logo and formal table
+    $content = "BT\n";
+    
+    // Header with logo placeholder (we'll add actual logo later)
+    $content .= "/F2 20 Tf\n";
+    $content .= "50 750 Td\n";
+    $content .= "(KEDAH STATE GOVERNMENT) Tj\n";
+    $content .= "0 -30 Td\n";
+    $content .= "/F2 16 Tf\n";
+    $content .= "(PROGRAM MANAGEMENT SYSTEM) Tj\n";
+    $content .= "0 -40 Td\n";
+    $content .= "/F2 18 Tf\n";
+    $content .= "(" . strtoupper($reportType) . " PROGRAMS REPORT) Tj\n";
+    $content .= "0 -50 Td\n";
+    
+    // Report info
+    $content .= "/F1 10 Tf\n";
+    $content .= "(Generated: " . date('d-m-Y H:i:s') . ") Tj\n";
+    $content .= "0 -30 Td\n";
+    
+    // Summary section
+    $totalBudget = array_sum(array_column($programs, 'budget'));
+    $content .= "/F2 14 Tf\n";
+    $content .= "(EXECUTIVE SUMMARY) Tj\n";
+    $content .= "0 -25 Td\n";
+    $content .= "/F1 12 Tf\n";
+    $content .= "(Total Programs: " . count($programs) . ") Tj\n";
+    $content .= "0 -20 Td\n";
+    $content .= "(Total Budget Allocation: RM " . number_format($totalBudget, 0) . ") Tj\n";
+    $content .= "0 -40 Td\n";
+    
+    // Table header
+    $content .= "/F2 14 Tf\n";
+    $content .= "(DETAILED PROGRAM LISTING) Tj\n";
+    $content .= "0 -30 Td\n";
+    
+    // Draw table structure
+    $startY = 550;
+    $lineHeight = 25;
+    $col1 = 50;   // No
+    $col2 = 80;   // Program Title
+    $col3 = 300;  // Status
+    $col4 = 380;  // Budget
+    $col5 = 480;  // Date
+    
+    // Table header row
+    $content .= "/F2 10 Tf\n";
+    $content .= "{$col1} {$startY} Td\n";
+    $content .= "(No.) Tj\n";
+    $content .= "{$col2} {$startY} Td\n";
+    $content .= "(Program Title) Tj\n";
+    $content .= "{$col3} {$startY} Td\n";
+    $content .= "(Status) Tj\n";
+    $content .= "{$col4} {$startY} Td\n";
+    $content .= "(Budget RM) Tj\n";
+    $content .= "{$col5} {$startY} Td\n";
+    $content .= "(Date) Tj\n";
+    
+    // Draw horizontal lines for table
+    $content .= "{$col1} {$startY} m\n";
+    $content .= "550 {$startY} l\n";
+    $content .= "S\n";
+    
+    $content .= "{$col1} " . ($startY - 20) . " m\n";
+    $content .= "550 " . ($startY - 20) . " l\n";
+    $content .= "S\n";
+    
+    // Table data rows
+    foreach ($programs as $index => $program) {
+        $y = $startY - 20 - ($index * $lineHeight);
+        
+        // Row background (alternating)
+        if ($index % 2 == 0) {
+            $content .= "{$col1} {$y} m\n";
+            $content .= "550 {$y} l\n";
+            $content .= "550 " . ($y - $lineHeight) . " l\n";
+            $content .= "{$col1} " . ($y - $lineHeight) . " l\n";
+            $content .= "f\n";
+        }
+        
+        // Row data
+        $content .= "/F1 9 Tf\n";
+        $content .= "{$col1} " . ($y - 15) . " Td\n";
+        $content .= "(" . ($index + 1) . ") Tj\n";
+        
+        $title = isset($program['title']) ? substr($program['title'], 0, 35) : 'No Title';
+        $content .= "{$col2} " . ($y - 15) . " Td\n";
+        $content .= "({$title}) Tj\n";
+        
+        $status = isset($program['status']) ? strtoupper($program['status']) : 'UNKNOWN';
+        $content .= "{$col3} " . ($y - 15) . " Td\n";
+        $content .= "({$status}) Tj\n";
+        
+        $budget = isset($program['budget']) ? number_format($program['budget'], 0) : '0';
+        $content .= "{$col4} " . ($y - 15) . " Td\n";
+        $content .= "({$budget}) Tj\n";
+        
+        $date = isset($program['created_at']) ? date('d/m/Y', strtotime($program['created_at'])) : 'N/A';
+        $content .= "{$col5} " . ($y - 15) . " Td\n";
+        $content .= "({$date}) Tj\n";
+        
+        // Row separator line
+        $content .= "{$col1} " . ($y - $lineHeight) . " m\n";
+        $content .= "550 " . ($y - $lineHeight) . " l\n";
+        $content .= "S\n";
+    }
+    
+    // Footer
+    $footerY = 100;
+    $content .= "/F1 10 Tf\n";
+    $content .= "50 {$footerY} Td\n";
+    $content .= "(Generated by Kedah State Government Program Management System) Tj\n";
+    $content .= "0 -15 Td\n";
+    $content .= "(For official use only - This document is confidential) Tj\n";
+    $content .= "0 -15 Td\n";
+    $content .= "(Report Type: " . strtoupper($reportType) . " Programs) Tj\n";
+    
+    $content .= "ET\n";
+    
+    // Page object
+    $pdf .= "5 0 obj\n";
+    $pdf .= "<<\n";
+    $pdf .= "/Type /Page\n";
+    $pdf .= "/Parent 4 0 R\n";
+    $pdf .= "/MediaBox [0 0 612 792]\n";
+    $pdf .= "/Resources <<\n";
+    $pdf .= "/Font <<\n";
+    $pdf .= "/F1 1 0 R\n";
+    $pdf .= "/F2 2 0 R\n";
+    $pdf .= ">>\n";
+    $pdf .= ">>\n";
+    $pdf .= "/Contents 6 0 R\n";
+    $pdf .= ">>\n";
+    $pdf .= "endobj\n";
+    
+    $pdf .= "6 0 obj\n";
+    $pdf .= "<<\n";
+    $pdf .= "/Length " . strlen($content) . "\n";
+    $pdf .= ">>\n";
+    $pdf .= "stream\n";
+    $pdf .= $content;
+    $pdf .= "endstream\n";
+    $pdf .= "endobj\n";
+    
+    $pdf .= "xref\n";
+    $pdf .= "0 7\n";
+    $pdf .= "0000000000 65535 f \n";
+    $pdf .= "0000000009 00000 n \n";
+    $pdf .= "0000000058 00000 n \n";
+    $pdf .= "0000000115 00000 n \n";
+    $pdf .= "0000000172 00000 n \n";
+    $pdf .= "0000000250 00000 n \n";
+    $pdf .= "0000000450 00000 n \n";
+    $pdf .= "trailer\n";
+    $pdf .= "<<\n";
+    $pdf .= "/Size 7\n";
+    $pdf .= "/Root 3 0 R\n";
+    $pdf .= ">>\n";
+    $pdf .= "startxref\n";
+    $pdf .= (strlen($pdf) - 1) . "\n";
+    $pdf .= "%%EOF\n";
+    
+    return $pdf;
+}
+
+// Handle the report generation
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $pdo = getConnection();
+        
+        $input = json_decode(file_get_contents('php://input'), true);
+        $reportType = $input['reportType'] ?? 'all';
+        $startDate = $input['startDate'] ?? '';
+        $endDate = $input['endDate'] ?? '';
+        
+        // Build the SQL query based on report type
+        $whereConditions = [];
+        $params = [];
+        
+        if ($reportType === 'approved') {
+            $whereConditions[] = "p.status = 'approved'";
+        } elseif ($reportType === 'rejected') {
+            $whereConditions[] = "p.status = 'rejected'";
+        }
+        
+        if ($startDate) {
+            $whereConditions[] = "p.created_at >= ?";
+            $params[] = $startDate . ' 00:00:00';
+        }
+        
+        if ($endDate) {
+            $whereConditions[] = "p.created_at <= ?";
+            $params[] = $endDate . ' 23:59:59';
+        }
+        
+        $whereClause = '';
+        if (!empty($whereConditions)) {
+            $whereClause = " WHERE " . implode(" AND ", $whereConditions);
+        }
+        
+        $sql = "
+            SELECT p.*, u.name as user_name, u.role as user_role,
+                   a.name as approver_name, r.name as rejector_name
+            FROM programs p 
+            LEFT JOIN users u ON p.user_id = u.id 
+            LEFT JOIN users a ON p.approved_by = a.id
+            LEFT JOIN users r ON p.rejected_by = r.id
+            {$whereClause}
+            ORDER BY p.created_at DESC
+        ";
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        $programs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Generate formal PDF
+        $pdfContent = generateFormalPDF($programs, $reportType, $startDate, $endDate);
+        
+        // Set headers for PDF download
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="' . $reportType . '_formal_report_' . date('Y-m-d_H-i-s') . '.pdf"');
+        header('Content-Length: ' . strlen($pdfContent));
+        
+        echo $pdfContent;
+        
+    } catch (Exception $e) {
+        error_log("Error generating formal PDF report: " . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to generate PDF report']);
+    }
+} else {
+    http_response_code(405);
+    echo json_encode(['error' => 'Method not allowed']);
+}
+?> 

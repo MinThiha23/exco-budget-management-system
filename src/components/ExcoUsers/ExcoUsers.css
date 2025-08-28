@@ -1,0 +1,129 @@
+/* Compact Formal Government Directory Style for EXCO Users */
+.exco-user-image {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: high-quality;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top; /* Focus on face area */
+}
+
+/* Ensure images are sharp on high-DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .exco-user-image {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Compact Formal Government Directory Card Styling */
+.exco-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.15s ease-in-out;
+  overflow: hidden;
+  max-width: 280px; /* Compact card width */
+}
+
+.exco-card:hover {
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Compact Formal Government Directory Text Styling */
+.exco-name {
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1.2;
+  font-size: 0.875rem; /* Smaller font */
+  margin-bottom: 0.25rem;
+}
+
+.exco-title {
+  color: #2563eb;
+  font-weight: 500;
+  line-height: 1.1;
+  font-size: 0.75rem; /* Smaller font */
+  margin-bottom: 0.25rem;
+}
+
+.exco-role {
+  color: #6b7280;
+  line-height: 1.3;
+  font-size: 0.75rem; /* Smaller font */
+  margin-bottom: 0.75rem;
+}
+
+/* Compact Contact Information Styling */
+.exco-contact {
+  color: #6b7280;
+  font-size: 0.625rem; /* Smaller font */
+  line-height: 1.2;
+  margin-bottom: 0.125rem;
+}
+
+.exco-contact-icon {
+  color: #9ca3af;
+  flex-shrink: 0;
+  width: 12px; /* Smaller icons */
+  height: 12px;
+}
+
+/* Compact Image Container Styling */
+.exco-image-container {
+  height: 160px; /* Smaller height but still good for faces */
+  background-color: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Responsive Grid for Compact Government Directory */
+@media (min-width: 640px) {
+  .exco-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .exco-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .exco-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .exco-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (min-width: 1536px) {
+  .exco-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* Compact spacing and padding */
+.exco-content {
+  padding: 0.75rem; /* Smaller padding */
+}
+
+.exco-contact-group {
+  margin-top: 0.5rem; /* Smaller margin */
+} 
